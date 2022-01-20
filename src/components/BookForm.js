@@ -1,5 +1,5 @@
 import '../App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function BookForm(props) {
   const [name, setName] = useState();
@@ -13,8 +13,12 @@ function BookForm(props) {
 
   function onSubmit(e) {
     addBook();
+    setAuthor('');
+    setName('');
     e.preventDefault();
   }
+
+  //useEffect(() => {}, [name, author]);
 
   return (
     <div className="form-container">
@@ -33,6 +37,7 @@ function BookForm(props) {
           placeholder="Name..."
           style={{ marginBottom: '1.3rem' }}
           onChange={(e) => setName(e.target.value)}
+          value={name}
         />
 
         <label htmlFor="author">Author</label>
@@ -42,6 +47,7 @@ function BookForm(props) {
           name="author"
           placeholder="Author..."
           onChange={(e) => setAuthor(e.target.value)}
+          value={author}
         />
         <button
           type="submit"
