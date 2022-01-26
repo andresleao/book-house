@@ -1,24 +1,49 @@
 import '../App.css';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
 function BookForm(props) {
-  const [name, setName] = useState();
-  const [author, setAuthor] = useState();
+  // const [name, setName] = useState();
+  // const [author, setAuthor] = useState();
   const { books, setBooks } = props;
 
-  function addBook() {
-    const newBook = { id: Math.random(), name, author };
-    setBooks([newBook, ...books]);
-  }
+  const schema = yup.object({
+    name: yup
+      .string()
+      .required('O campo Nome é obrigatório!!!')
+      .min(3, 'O campo Nome deve conter pelo menos 3 caracteres!!!')
+      .max(30, 'O campo Nome deve ter no máximo 30 caracteres!!!'),
 
-  function onSubmit(e) {
-    addBook();
-    setAuthor('');
-    setName('');
-    e.preventDefault();
-  }
+    author: yup
+      .string()
+      .required('O campo Author é obrigatório')
+      .min(3, 'O campo Author deve conter pelo menos 3 caracteres!!!'),
+  });
 
-  //useEffect(() => {}, [name, author]);
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      author: '',
+    },
+    validationSchema: schema,
+    onSubmit: (values, { resetForm }) => {
+      // addBook()
+      const { name, author } = values;
+      const newBook = { id: Math.random(), name, author };
+      setBooks([newBook, ...books]);
+      resetForm({ values: '' });
+    },
+    onReset: (values) => {
+      values.name = '';
+      values.author = '';
+    },
+  });
+
+  // function addBook() {
+  //   const newBook = { id: Math.random(), name, author };
+  //   setBooks([newBook, ...books]);
+  // }
 
   return (
     <div className="form-container">
@@ -28,17 +53,20 @@ function BookForm(props) {
         </h4>
       </div>
 
-      <form onSubmit={onSubmit}>
+      <form onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
         <label htmlFor="name">Name</label>
         <input
           type="text"
           id="name"
           name="name"
           placeholder="Name..."
-          style={{ marginBottom: '1.3rem' }}
-          onChange={(e) => setName(e.target.value)}
-          value={name}
+          value={formik.values.name}
+          onChange={formik.handleChange}
         />
+        {/* {error && <span className="message-error">{formik.errors.name}</span>} */}
+        {formik.errors.name && (
+          <span className="message-error">{formik.errors.name}</span>
+        )}
 
         <label htmlFor="author">Author</label>
         <input
@@ -46,13 +74,18 @@ function BookForm(props) {
           id="author"
           name="author"
           placeholder="Author..."
-          onChange={(e) => setAuthor(e.target.value)}
-          value={author}
+          value={formik.values.author}
+          onChange={formik.handleChange}
         />
+        {/* {error && <span className="message-error">Inválid</span>} */}
+        {formik.errors.author && (
+          <span className="message-error">{formik.errors.author}</span>
+        )}
+
         <button
           type="submit"
           className="btn-register"
-          disabled={name && author ? false : true}
+          // disabled={formik.values.name && formik.values.author ? false : true}
         >
           Register
         </button>
